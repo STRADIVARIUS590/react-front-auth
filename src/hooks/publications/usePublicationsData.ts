@@ -77,7 +77,7 @@ export const usePublications = ({getEndpoint, id}: {id ?  : number | string | nu
     } 
 
     const getById = async (id : number | string) => {
-        const response = await Api.get(getEndpoint + '/get/' + id + '?include=tags,cover', {
+        const response = await Api.get(getEndpoint + '/get/' + id + '?include=tags,cover,file', {
             Authorization: 'Bearer ' + token,
             accept: 'application/json'
         })

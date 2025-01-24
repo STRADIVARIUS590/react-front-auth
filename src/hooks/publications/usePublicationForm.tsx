@@ -47,6 +47,7 @@ interface FormValues {
     period: string ;
     tags?: any[];
     cover? : File;
+    file? : File;
     // user: {
     //     name: string | undefined
     // },
@@ -59,9 +60,11 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
     const { fetchData : fetchUsers } = useUser();
     const [ users, setUsers ] = useState<UserItem_T[]>([]);
     const { token } = useSelector((state: RootState) => state.auth);
-    const [tags, setTags] = useState<TagItem[]>([]);
+    const [ tags, setTags] = useState<TagItem[]>([]);
     const { fetchData : fetchTags } = useTags();
     const [ cover, setCover ] = useState<string | undefined>();
+    const [ file, setFile] = useState<string | undefined>();
+
     const navigate  = useNavigate();
 
     const { reset, setError, watch, control, setValue, register, handleSubmit, formState: { errors } } = useForm<FormValues>({
@@ -72,10 +75,9 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
 
         // const loadData = async () => {
         const loadData = async ({id}: {id ?  : number | string | undefined | null } ) => {
-
             try {
                 if(id){
-                    const fetchedData = await getById(id);
+                    let fetchedData = await getById(id);
                     reset(fetchedData);
                     if(fetchedData?.tags) {
                         setValue('tags', fetchedData.tags.map((tag: TagItem) => tag.id));
@@ -83,12 +85,17 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
                     if(fetchedData?.cover?.preview_url){
                         setCover(fetchedData.cover.preview_url); // Set the initial avatar preview
                     }
+                    if(fetchedData?.file?.original_url){
+                        setFile(fetchedData.file.original_url);
+                    }
                 }
+
                 const users: UserItem_T[] = await fetchUsers() ?? [] //                
                 const tags: TagItem[] = await fetchTags() ?? [];
                 setUsers(users);
                 setTags(tags);
                 setLoading(false);
+
             }catch{
                 setLoading(false);
             }
@@ -106,6 +113,9 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
             });
         }        
 
+        if (data.file && data.file instanceof File) {
+            formData.append('files[]', data.file);
+        }
         if (data.cover && data.cover instanceof File) { 
             formData.append('cover', data.cover);
         }
@@ -132,5 +142,5 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
         }
     }
 
-    return {  loadData, loading, register, onSubmit, handleSubmit, errors, tags, control, watch, cover, setCover, setValue, users };
+    return {  loadData, loading, register, onSubmit, handleSubmit, errors, tags, control, watch, cover, setCover, setValue, users, file, setFile,  };
 };

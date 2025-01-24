@@ -19,6 +19,10 @@ export const AddEditForm = () => {
     // watch,
     cover,
     setCover,
+
+    file, 
+    setFile,
+
     setValue,
     users,
   } = usePublicationsForm({id});
@@ -26,6 +30,8 @@ export const AddEditForm = () => {
   useEffect(() => {
     loadData({ id });
   }, [id]);
+
+    
 
   if (loading) return <MessageToast message="Cargando..." type="loading" />;
   const isEditMode = !!id;
@@ -104,6 +110,7 @@ export const AddEditForm = () => {
                 </div>
               </div>
 
+               
               <div className="w-full px-4 md:w-1/2 lg:w-1/3">
                 <div className="mb-12">
                   <label className="block text-base font-medium text-[#180c5c] mb-2 text-left">
@@ -132,6 +139,8 @@ export const AddEditForm = () => {
                     </p>
                   )}
 
+                  
+
                   <label className="block text-base font-medium text-[#180c5c] mb-2 mt-6 text-left">
                     Period
                   </label>
@@ -143,6 +152,7 @@ export const AddEditForm = () => {
                   {errors.period && (
                     <p className="text-red-500">{errors.period.message}</p>
                   )}
+                  
 
                   <div className="mb-4">
                     <label
@@ -151,6 +161,8 @@ export const AddEditForm = () => {
                     >
                       Usuario
                     </label>
+
+                
 
                     <Controller
                       name="user_id"
@@ -175,6 +187,33 @@ export const AddEditForm = () => {
                       {errors.user_id.message}
                     </p>
                   )}
+                  
+                  <div className="mb-4">
+                    <label className="block text-base font-medium text-[#180c5c] mb-2 mt-6 text-left">
+                      Archivo
+                    </label>
+                    <input
+                      className="w-full bg-[#f9fafb] dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500"                 
+                      type="file"
+                       accept="application/pdf"
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        if (e.target.files) {
+
+                            setValue('file', e.target.files[0]);
+                            setFile(URL.createObjectURL(e.target.files[0]));
+                        }
+                    }}
+                    />
+                  </div>
+
+                   {file && (
+                        <div className="mt-4 align-center">
+                          <object data={file} type="application/pdf" width="100%" height="100px">
+                            <p>Your browser does not support embedded PDFs. You can <a href={file}>download the PDF</a> instead.</p>
+                            </object>
+                            <a href={file} target="_blank" rel="noreferrer" className="text-blue-500 mt-2 inline-block"> Ver archivo </a>
+                        </div>
+                      )}
                 </div>
               </div>
               
@@ -215,6 +254,7 @@ export const AddEditForm = () => {
                     ))}
 
                   <div>
+                    
                     
                       <label
                         className="block text-base font-medium text-[#180c5c] mb-2 mt-12 text-left"
