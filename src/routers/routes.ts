@@ -37,6 +37,7 @@ const routes: TypeRoute[] = [
     // },
     {
         path: '/proac',
+        // path: '/',
         is_protected: true,
         middleware: 'guest',
         element: Login

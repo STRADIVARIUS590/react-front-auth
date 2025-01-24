@@ -67,13 +67,14 @@ type Props = {
   placeholder?: string;
   id?: string;
   error?: string;
-  type?: "text" | "email" | "password" | "date" | "select" | 'number';
+  type?: "text" | "email" | "password" | "date" | "select" | 'number' | 'file';
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   value?: string | number | null;
-  as?: string
+  as?: string,
+  accept?: string | null;
 };
 
-export const DefaultInput = ({ label, name, placeholder, id, type = "text", as }: Props) => {
+export const DefaultInput = ({ label, name, placeholder, id, type = "text", as , accept = null }: Props) => {
   return (
     <div>
       <label className="block text-base font-medium text-[#180c5c] mb-2 text-left mt-4" htmlFor={id}>
@@ -85,6 +86,8 @@ export const DefaultInput = ({ label, name, placeholder, id, type = "text", as }
         name={name}
         placeholder={placeholder}
         type={type}
+        accept={accept}
+        // onChange={onChange}
         className="w-full bg-transparent rounded-md border border-gray-300 dark:border-gray-700 py-[10px] px-5 text-dark-6 outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-gray-2 disabled:border-gray-2"
       />
       <ErrorMessage name={name} component="div" className="text-red-500" />
