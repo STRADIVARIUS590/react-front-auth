@@ -36,8 +36,8 @@ const routes: TypeRoute[] = [
     //     element: tagstest
     // },
     {
-        path: '/proac',
-        // path: '/',
+        // path: '/proac',
+        path: '/',
         is_protected: true,
         middleware: 'guest',
         element: Login
