@@ -57,12 +57,26 @@ const validationSchema = Yup.object({
     institution_id: Yup.string().required('La institucion es requerida'),
 });
 
+ export const post = async (url : string, data: any, headers : {}) => {
+        const response = await fetch(`${Api.baseUrl}${url}`, {
+            method: 'POST',
+            headers : headers,
+            body : data
+        });
+
+        const dataResponse = await response.json();
+
+        return {
+            statusCode: response.status,
+            data: dataResponse.data
+        }
+    } 
+
 export const AddEditForm = () => {
     const { token, user } = useSelector((state: RootState) => state.auth);
     const { id } = useParams<{ id?: string }>();
     const navigate = useNavigate();
     const user_permissions: string[] = user?.all_permissions || [];
-
     useEffect(() => {
         if (!user || user_permissions.indexOf("courses.edit") === -1) {
             navigate("/dashboard");
@@ -77,20 +91,6 @@ export const AddEditForm = () => {
     const [institutions, setInstitutions] = useState<InstitutionItem[]>([]);
     const [file, setFile] = useState<File | null | string>(null);
 
-    const post = async (url: string, data: any, headers: {}) => {
-        const response = await fetch(`${Api.baseUrl}${url}`, {
-            method: 'POST',
-            headers: headers,
-            body: data
-        });
-
-        const dataResponse = await response.json();
-
-        return {
-            statusCode: response.status,
-            data: dataResponse.data
-        }
-    }
 
     const loadData = async () => {
         try {
