@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { Formik, Field, Form, ErrorMessage, FormikHelpers, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -7,6 +7,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { MessageToast } from '../MessageToast';
 import { DefaultColumn, DefaultInput } from '../inputs/Forms';
+import { post } from '../Courses/addEditForm';
+import { createFormData } from '@/hooks/publications/usePublicationForm';
 
 interface DataItem {
     id: string | number | null | undefined;
@@ -16,6 +18,9 @@ interface DataItem {
     date: string | null | undefined;
     colaborators: number | null | undefined;
     tags: { id: number, name: string }[];
+    file: {
+        original_url: string;
+    };
 }
 
 interface TagItem {
@@ -54,11 +59,11 @@ export const AddEditForm = () => {
     const [data, setData] = useState<DataItem>();
     const [users, setUsers] = useState<UserItem[]>([]);
     const [tags, setTags] = useState<TagItem[]>([]);
-
+    const [file, setFile] = useState<File | null | string>(null); 
     const loadData = async () => {
         try {
             if (id) {
-                const response = await Api.get("/congresses/get/" + id + "?include=user,tags", {
+                const response = await Api.get("/congresses/get/" + id + "?include=user,tags,file", {
                     Authorization: "Bearer " + token,
                     accept: "application/json",
                 });
@@ -99,21 +104,35 @@ export const AddEditForm = () => {
         date: data?.date || "",
         colaborators: data?.colaborators || 0,
         tags: data?.tags?.map(tag => tag.id) || [],
+        file: data?.file.original_url || null, 
+        
     };
 
     const isEditMode = !!id;
 
     const handleSubmit = async (values: typeof initialValues, { setFieldError }: FormikHelpers<typeof initialValues>) => {
+        const formData = createFormData(values);
+
+         if (file && file instanceof File) {
+            formData.append('files[]', file);
+        }
+
+        // Append tags to the FormData
+        if (values.tags && values.tags.length > 0) {
+            values.tags.forEach((tag) => {
+                formData.append('tags[]', tag.toString());
+            });
+        }
         const response = isEditMode
-            ? await Api.put(`/congresses`, values, {
+            ? await post(`/congresses/update`, formData, {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
+        
             })
-            : await Api.post(`/congresses`, values, {
+            : await post(`/congresses`, formData, {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
             });
 
+            console.log(response);
         if (response.statusCode === 200) {
             navigate('/congresses');
         } else {
@@ -147,7 +166,7 @@ export const AddEditForm = () => {
                               
                                 <DefaultColumn>
                                     <DefaultInput name="date" label='Fecha' type='date' />
-                                    <DefaultInput name="colaborators" label='Nro COlaboradores' type='number' />
+                                    <DefaultInput name="colaborators" label='Nro Colaboradores' type='number' />
                                 </DefaultColumn>
 
 
@@ -165,7 +184,36 @@ export const AddEditForm = () => {
                                 {/* </DefaultColumn> */}
 
                                 {/* <DefaultColumn> */}
-                                <FieldArray
+                           
+
+                            <div className='mt-14'> 
+                                <input
+                                accept="application/pdf"
+                                type="file" name='file' id='file'
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                    if (e.target.files) {
+                                        setFile(e.target.files[0]);
+                                    }
+                                }} />
+                                </div>
+                              
+                                </DefaultColumn>
+                            </div>
+
+                                {file && (
+                                    <div className="mt-6">
+                                        <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+                                            <object data={data?.file?.original_url} type="application/pdf" width="100%" height="100px">
+                                                <p>Your browser does not support embedded PDFs. You can <a href={data?.file?.original_url}>download the PDF</a> instead.</p>
+                                            </object>
+                                        </div>
+                                        <a href={data?.file?.original_url} target="_blank" rel="noreferrer" className="text-blue-500 mt-2 inline-block">
+                                            Ver archivo 
+                                        </a>
+                                    </div>
+                                )}
+
+                                 <FieldArray
                                     name="tags"
                                     render={(arrayHelpers) => (
                                         <div className="w-full"> {/* no pude desplazarlo abajo xd ayuda */}
@@ -201,16 +249,17 @@ export const AddEditForm = () => {
                                         </div>
                                     )}
                                     />
-                                </DefaultColumn>
+                            
+                            {/* <DefaultColumn>
+
+                            </DefaultColumn> */}
+                            <div className="mt-4 mt-6 text-right">
+                                <button type="submit" className="px-6 py-3 bg-[#180c5c] text-white font-semibold rounded-lg shadow-lg hover:bg-[#180c3c] focus:ring-2 focus:ring-blue-500"
+                                disabled={isSubmitting}>
+                                    {isEditMode ? "Actualizar" : "Agregar"}
+                                    </button>
                             </div>
-                    <div className="mt-4 mt-6 text-right">
-                        <button type="submit" className="px-6 py-3 bg-[#180c5c] text-white font-semibold rounded-lg shadow-lg hover:bg-[#180c3c] focus:ring-2 focus:ring-blue-500"
-                        disabled={isSubmitting}>
-                            {isEditMode ? "Actualizar" : "Agregar"}
-                                {/* <p>{JSON.stringify(errors)}</p> */}
-                            </button>
-                    </div>
-                            </div>
+                        </div>
                     </section>
 
                 </Form>
