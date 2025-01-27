@@ -189,45 +189,8 @@ export const AddEditForm = () => {
 
 
                                                 />
-                                            </DefaultColumn>
 
-                                            {/* Objetivos y Colaboradores */}
-                                            <DefaultColumn>
-                                                <DefaultInput
-                                                    name="objetives"
-                                                    label="Objetivos"
-
-
-                                                />
-                                                <DefaultInput
-                                                    name="colaborators"
-                                                    label="Colaboradores"
-
-
-                                                />
-                                            </DefaultColumn>
-
-                                            {/* Fechas */}
-                                            <DefaultColumn>
-                                                <DefaultInput
-                                                    name="start_date"
-                                                    label="Fecha de Inicio"
-                                                    type="date"
-
-
-                                                />
-                                                <DefaultInput
-                                                    name="end_date"
-                                                    label="Fecha de Fin"
-                                                    type="date"
-
-
-                                                />
-                                            </DefaultColumn>
-
-                                            {/* Usuario */}
-                                            <DefaultColumn>
-                                                <label
+                                                 <label
                                                     htmlFor="user_id"
                                                     className="block text-base font-medium text-[#180c5c] mb-2  mt-4 text-left"
                                                 >
@@ -251,27 +214,39 @@ export const AddEditForm = () => {
                                                 />
                                             </DefaultColumn>
 
-                                            {/* Tipo y Periodo */}
+                                            {/* Objetivos y Colaboradores */}
                                             <DefaultColumn>
                                                 <DefaultInput
+                                                    name="objetives"
+                                                    label="Objetivos"
+
+
+                                                />
+                                                <DefaultInput
+                                                    name="colaborators"
+                                                    label="Colaboradores"
+                                                />
+                                                   <DefaultInput
                                                     type="number"
                                                     name="type"
                                                     label="Tipo"
-
-
+                                                />  
+                                            </DefaultColumn>
+                                            {/* Fechas */}
+                                            <DefaultColumn>
+                                                <DefaultInput
+                                                    name="start_date"
+                                                    label="Fecha de Inicio"
+                                                    type="date"
                                                 />
                                                 <DefaultInput
-                                                    name="period"
-                                                    label="Periodo"
-
-
+                                                    name="end_date"
+                                                    label="Fecha de Fin"
+                                                    type="date"
                                                 />
                                             </DefaultColumn>
-
-                                            {/* Tags */}
-                                            <DefaultColumn>
-
-                                                <FieldArray
+                                        </div>
+                                        <FieldArray
                                                     name="tags"
                                                     render={(arrayHelpers) => (
                                                         <div>
@@ -305,10 +280,6 @@ export const AddEditForm = () => {
                                                         </div>
                                                     )}
                                                     />
-
-                                            </DefaultColumn>
-                                        </div>
-
                                         {/* Botón de acción */}
                                         <div className="mt-6 text-right">
                                             <button
@@ -316,95 +287,22 @@ export const AddEditForm = () => {
                                                 // disabled={}isSubmitting}
                                                 className="px-6 py-3 bg-[#180c5c] text-white font-semibold rounded-lg shadow-lg hover:bg-[#180c3c] focus:ring-2 focus:ring-blue-500"
                                                 >
-                                            
                                                 {isEditMode ? 'Actualizar' : 'Agregar'}
                                             </button>
                                         </div>
+                                        
                                     </div>
-                                {/* )} */}
                             </div>
                         </div>
+                        
                     </section>
 
 
-                    {/* <div>
-                <button type="submit" disabled={isSubmitting}>
-                    {isEditMode ? "Update" : "Add"}
-                </button>
-            </div> */}
+          
                 </Form>
             )}
         </Formik>
-    </div>)
-                /* <input type="hidden" name="id" />
-                    <div>
-                        <label htmlFor="name">Nombre</label>
-                        <Field name="name" type="text" />
-                        <ErrorMessage name="name" component="div" style={{ color: "red" }} />
-                    </div>
+    </div>
+    )
 
-                    <div>
-                        <label htmlFor="description">Descripcion</label>
-                        <Field name="description" type="text" />
-                        <ErrorMessage name="description" component="div" style={{ color: "red" }} />
-                    </div>
-
-                    <div>
-                        <label htmlFor="objetives">Objetivos</label>
-                        <Field name="objetives" type="text" />
-                        <ErrorMessage name="objetives" component="div" style={{ color: "red" }} />
-                    </div>
-
-                    <div>
-                        <label htmlFor="colaborators">Colaboradores</label>
-                        <Field name="colaborators" type="text" />
-                        <ErrorMessage name="colaborators" component="div" style={{ color: "red" }} />
-                    </div>
-
-                    <div>
-                        <label htmlFor="start_date">Fecha de inicio</label>
-                        <Field name="end_date" type="date" />
-                        <ErrorMessage name="start_date" component="div" style={{ color: "red" }} />
-                    </div>
-
-                    <div>
-                        <label htmlFor="end_date">Fecha de fin</label>
-                        <Field name="end_date" type="date" />
-                        <ErrorMessage name="end_date" component="div" style={{ color: "red" }} />
-                    </div>
-
-                    <div>
-                        <label htmlFor="type">Tipo</label>
-                        <Field name="type" type="text" />
-                        <ErrorMessage name="type" component="div" style={{ color: "red" }} />
-                    </div>
-
-                    <div>
-                        <label htmlFor="period">Periodo</label>
-                        <Field name="period" type="text" />
-                        <ErrorMessage name="period" component="div" style={{ color: "red" }} />
-                    </div>
-
-                    <div>
-                    <label htmlFor="user_id">Usuario</label>
-                    <Field as="select" name="user_id">
-                        <option value="">Select a user</option> {/* Default empty option */}
-{/* {users.map((user) => (
-                        <option key={user.id} value={user.id}>
-                            {user.name}
-                        </option>
-                        ))}
-                    </Field>
-                    <ErrorMessage name="user_id" component="div" style={{ color: 'red' }} />
-                    </div>
-
-
-                    <div>
-                        <button type="submit" disabled={isSubmitting}>
-                            {isEditMode ? "Update" : "Add"}
-                        </button>
-                    </div>
-                    )} */}
-{/* </Form>   */ }
-
-{/* </Formik> <div/> */ }
+}
