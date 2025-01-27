@@ -19,10 +19,8 @@ export const AddEditForm = () => {
     // watch,
     cover,
     setCover,
-
     file, 
     setFile,
-
     setValue,
     users,
   } = usePublicationsForm({id});
@@ -198,7 +196,6 @@ export const AddEditForm = () => {
                        accept="application/pdf"
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
                         if (e.target.files) {
-
                             setValue('file', e.target.files[0]);
                             setFile(URL.createObjectURL(e.target.files[0]));
                         }

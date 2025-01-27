@@ -59,7 +59,7 @@ export const AddEditForm = () => {
     const [data, setData] = useState<DataItem>();
     const [users, setUsers] = useState<UserItem[]>([]);
     const [tags, setTags] = useState<TagItem[]>([]);
-    const [file, setFile] = useState<File | null | string>(null); 
+    const [file, setFile] = useState<File | undefined >(); 
     const loadData = async () => {
         try {
             if (id) {
@@ -69,6 +69,10 @@ export const AddEditForm = () => {
                 });
                 const result = await response.data;
                 setData(result);
+
+                if(result?.file?.original_url){
+                    setFile(result.file.original_url);
+                }
             }
 
             const response_users = await Api.get('/users', {
@@ -193,14 +197,15 @@ export const AddEditForm = () => {
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                     if (e.target.files) {
                                         setFile(e.target.files[0]);
+                                        if (data) data.file.original_url = URL.createObjectURL(e.target.files[0]);
                                     }
                                 }} />
                                 </div>
-                              
                                 </DefaultColumn>
                             </div>
+      
 
-                                {data?.file?.original_url && (
+                                {/* {data?.file?.original_url && ( */}
                                     <div className="mt-6">
                                         <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
                                             <object data={data?.file?.original_url} type="application/pdf" width="100%" height="100px">
@@ -211,7 +216,7 @@ export const AddEditForm = () => {
                                             Ver archivo 
                                         </a>
                                     </div>
-                                )}
+                                    {/* )} */}
 
                                  <FieldArray
                                     name="tags"
