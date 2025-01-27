@@ -104,7 +104,7 @@ export const AddEditForm = () => {
         date: data?.date || "",
         colaborators: data?.colaborators || 0,
         tags: data?.tags?.map(tag => tag.id) || [],
-        file: data?.file.original_url || null, 
+        file: data?.file?.original_url || null, 
         
     };
 
@@ -200,7 +200,7 @@ export const AddEditForm = () => {
                                 </DefaultColumn>
                             </div>
 
-                                {file && (
+                                {data?.file?.original_url && (
                                     <div className="mt-6">
                                         <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
                                             <object data={data?.file?.original_url} type="application/pdf" width="100%" height="100px">
