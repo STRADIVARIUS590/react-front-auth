@@ -255,17 +255,38 @@ export const AddEditForm = () => {
                                             </Field>
                                             <ErrorMessage name="user_id" component="div" className="text-red-500" />
                                         </div>
-                                        <input
-                                            accept="application/pdf"
-                                            type="file" name='file' id='file'
-                                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                                if (e.target.files) {
-                                                    setFile(e.target.files[0]);
-                                                    console.log(JSON.stringify(data));
-                                                    if (data) data.file.original_url = URL.createObjectURL(e.target.files[0]);
-                                                }
-                                            }} />
-                                        <FieldArray
+
+                                        <div className='mt-14'>
+                                            
+                                            <input
+                                                accept="application/pdf"
+                                                type="file" name='file' id='file'
+                                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                    if (e.target.files) {
+                                                        setFile(e.target.files[0]);
+                                                        console.log(JSON.stringify(data));
+                                                        if (data) data.file.original_url = URL.createObjectURL(e.target.files[0]);
+                                                    }
+                                                }} />
+                                        </div>
+                                    </DefaultColumn>
+
+                                    <DefaultColumn>
+                                          {data?.file?.original_url && (
+                                            <div className="mt-6">
+                                                <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+                                                    <object data={data?.file?.original_url} type="application/pdf" width="100%" height="100px">
+                                                        <p>Your browser does not support embedded PDFs. You can <a href={data?.file?.original_url}>download the PDF</a> instead.</p>
+                                                    </object>
+                                                </div>
+                                                <a href={data?.file?.original_url} target="_blank" rel="noreferrer" className="text-blue-500 mt-2 inline-block">
+                                                    Ver archivo 
+                                                </a>
+                                            </div>
+                                        )}
+                                    </DefaultColumn>
+                                </div>
+                                <FieldArray
                                             name="tags"
                                             render={(arrayHelpers) => (
                                                 <div className="">
@@ -301,24 +322,8 @@ export const AddEditForm = () => {
                                                 </div>
                                             )}
                                         />
-                                    </DefaultColumn>
-
-                                    <DefaultColumn>
-                                          {data?.file?.original_url && (
-                                            <div className="mt-6">
-                                                <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
-                                                    <object data={data?.file?.original_url} type="application/pdf" width="100%" height="100px">
-                                                        <p>Your browser does not support embedded PDFs. You can <a href={data?.file?.original_url}>download the PDF</a> instead.</p>
-                                                    </object>
-                                                </div>
-                                                <a href={data?.file?.original_url} target="_blank" rel="noreferrer" className="text-blue-500 mt-2 inline-block">
-                                                    Ver archivo 
-                                                </a>
-                                            </div>
-            )}
-                                    </DefaultColumn>
-                                </div>
                             </div>
+                            
                         </section>
                         <div className="mt-6 text-right">
                             <button
