@@ -1,13 +1,16 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { UNSAFE_SingleFetchRedirectSymbol, useNavigate, useParams } from "react-router-dom";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Api } from "../../services/Api";
 import * as Yup from 'yup';
 import { MessageToast } from "../MessageToast";
 import { ErrorMessage, Field, Formik, FormikHelpers, Form, FieldArray } from "formik";
 import { DefaultColumn, DefaultInput } from "../inputs/Forms";
 import { TagItem } from "../Users/AddEditForm";
+import { post } from "../Courses/addEditForm";
+import { createFormData } from "@/hooks/publications/usePublicationForm";
+import { log } from "console";
 const validationSchema = Yup.object({
     name: Yup.string().required('El nombre es requerido'),
     description: Yup.string().required('La descripcion es requerida'),
@@ -25,7 +28,7 @@ interface ProjectItem {
     description: string | undefined;
     user_id: string | number | undefined;
     objetives: string | undefined;
-    colaborators: string | undefined;
+    colaborators: string | undefined;   
     start_date: string | undefined;
     end_date: string | undefined;
     type: string | undefined;
@@ -33,6 +36,9 @@ interface ProjectItem {
     tags: TagItem[]
     user: {
         name: string | undefined
+    },
+    file: {
+        original_url: string | undefined
     }
 }
 
@@ -67,9 +73,14 @@ export const AddEditForm = () => {
     const [data, setData] = useState<ProjectItem>();
 
     const [users, setUsers] = useState<UserItem[]>([]);
+
+    const [ file, setFile ] = useState<File | null>();
+    
+   
+
     const loadData = async () => {
         if (id) {
-            const response = await Api.get("/projects/get/" + id + "?include=user,tags", {
+            const response = await Api.get("/projects/get/" + id + "?include=user,tags,file", {
                 Authorization: "Bearer " + token,
                 accept: "application/json",
             });
@@ -120,24 +131,38 @@ export const AddEditForm = () => {
         tags: data?.tags?.map(tag => tag.id) || [],
         user: {
             name: data?.user?.name || "",
-        }
+        },
+        file: data?.file || null, 
     }
+
+
+    const [ filePreview, setFilePreview ] = useState(initialValues.file?.original_url || '');
+
 
     const isEditMode = !!id;
 
     // HANDLE
     const handleSubmit = async (values: typeof initialValues, { setFieldError }: FormikHelpers<typeof initialValues>) => {
 
-        const response = isEditMode
-            ? await Api.put(`/projects`, values, {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            })
-            : await Api.post(`/projects`, values, {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
+        const formData = createFormData(values);
+        
+        if (file && file instanceof File) {
+            formData.append('files[]', file);
+        }
+
+        // Append tags to the FormData
+        if (values.tags && values.tags.length > 0) {
+            values.tags.forEach((tag) => {
+                formData.append('tags[]', tag.toString());
             });
-        console.error(response);
+        }
+        const response = isEditMode
+            ? await post(`/projects/update`, formData, {
+                Authorization: `Bearer ${token}`,
+            })
+            : await post(`/projects`, formData, {
+                Authorization: `Bearer ${token}`,
+            });
 
         if (response.statusCode === 200) {
             navigate('/projects');
@@ -168,11 +193,7 @@ export const AddEditForm = () => {
                                 {isEditMode ? 'Editar Proyecto' : 'Agregar Proyecto'}
                             </h1>
                             <div
-                                // initialValues={initialValues}
-                                // validationSchema={validationSchema}
-                                // onSubmit={handleSubmit}
                             >
-                                {/* {({ isSubmitting }) => ( */}
                                     <div className="bg-white dark:bg-gray-700 shadow-lg rounded-lg p-6 md:p-8">
                                         <div className="flex flex-wrap">
                                             {/* Nombre y Descripción */}
@@ -180,14 +201,11 @@ export const AddEditForm = () => {
                                                 <DefaultInput
                                                     name="name"
                                                     label="Nombre"
-
-
                                                 />
+                                                
                                                 <DefaultInput
                                                     name="description"
                                                     label="Descripción"
-
-
                                                 />
 
                                                  <label
@@ -212,29 +230,7 @@ export const AddEditForm = () => {
                                                     component="div"
                                                     className="text-red-500 text-sm mt-1"
                                                 />
-                                            </DefaultColumn>
-
-                                            {/* Objetivos y Colaboradores */}
-                                            <DefaultColumn>
-                                                <DefaultInput
-                                                    name="objetives"
-                                                    label="Objetivos"
-
-
-                                                />
-                                                <DefaultInput
-                                                    name="colaborators"
-                                                    label="Colaboradores"
-                                                />
-                                                   <DefaultInput
-                                                    type="number"
-                                                    name="type"
-                                                    label="Tipo"
-                                                />  
-                                            </DefaultColumn>
-                                            {/* Fechas */}
-                                            <DefaultColumn>
-                                                <DefaultInput
+                                                  <DefaultInput
                                                     name="start_date"
                                                     label="Fecha de Inicio"
                                                     type="date"
@@ -245,46 +241,95 @@ export const AddEditForm = () => {
                                                     type="date"
                                                 />
                                             </DefaultColumn>
+
+                                            {/* Objetivos y Colaboradores */}
+                                            <DefaultColumn>
+                                                <DefaultInput
+                                                    name="objetives"
+                                                    label="Objetivos"
+                                                />
+                                                <DefaultInput
+                                                    name="colaborators"
+                                                    label="Colaboradores"
+                                                />
+                                                <DefaultInput
+                                                    type="number"
+                                                    name="type"
+                                                    label="Tipo"
+                                                /> 
+                                                <DefaultInput
+                                                    type="text"
+                                                    name="period"
+                                                    label="Periodo"
+                                                />
+                                            </DefaultColumn>
+                                            <DefaultColumn>
+                                                <div className="mt-12" max-width="10%">
+                                                    <input 
+                                                    accept="application/pdf"
+                                                    type="file" 
+                                                    onChange={( e : ChangeEvent<HTMLInputElement>) => {
+                                                        if(e.target.files) {
+                                                            setFile(e.target.files[0]);
+                                                            if (data) data.file.original_url = URL.createObjectURL(e.target.files[0]);
+                                                        }
+                                                    }}/>
+                                                </div>
+
+                                                {/* {data?.file?.original_url && ( */}
+                                                    <div className="mt-6">
+                                                        <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+                                                            <object data={data?.file?.original_url } type="application/pdf" width="100%" height="100px">
+                                                                <p>Your browser does not support embedded PDFs. You can <a href={data?.file?.original_url }>download the PDF</a> instead.</p>
+                                                            </object>
+                                                        </div>
+                                                        <a href={data?.file?.original_url } target="_blank" rel="noreferrer" className="text-blue-500 mt-2 inline-block">
+                                                            Ver archivo 
+                                                        </a>
+                                                    </div>
+                                                 {/* )} */}
+                                            </DefaultColumn>                                            
                                         </div>
                                         <FieldArray
-                                                    name="tags"
-                                                    render={(arrayHelpers) => (
-                                                        <div>
-                                                        <h3 className="block text-base font-medium text-[#180c5c] mb-2 mt-4 text-left">
-                                                            Etiquetas
-                                                        </h3>
-                                                        <div className="flex flex-wrap gap-4">
-                                                            {tags?.map((tag, index) => (
-                                                            <label key={index} className="flex items-center space-x-2">
-                                                                <Field
-                                                                type="checkbox"
-                                                                name="tags"
-                                                                value={tag.id}
-                                                                className="peer w-4 h-4 text-[#180c5c] border-gray-300 dark:border-gray-700 rounded focus:ring-[#180c5c]"
-                                                                checked={arrayHelpers.form.values.tags.includes(tag.id)}
-                                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                                                    if (e.target.checked) {
-                                                                    arrayHelpers.push(tag.id);
-                                                                    } else {
-                                                                    const idx = arrayHelpers.form.values.tags.indexOf(tag.id);
-                                                                    if (idx !== -1) arrayHelpers.remove(idx);
-                                                                    }
-                                                                }}
-                                                                />
-                                                                <span className="text-sm text-gray-700 dark:text-white">
-                                                                {tag.name}
-                                                                </span>
-                                                            </label>
-                                                            ))}
-                                                        </div>
-                                                        </div>
-                                                    )}
-                                                    />
-                                        {/* Botón de acción */}
+                                            name="tags"
+                                            render={(arrayHelpers) => (
+                                                <div>
+                                                <h3 className="block text-base font-medium text-[#180c5c] mb-2 mt-4 text-left">
+                                                    Etiquetas
+                                                </h3>
+                                                <div className="flex flex-wrap gap-4">
+                                                    {tags?.map((tag, index) => (
+                                                    <label key={index} className="flex items-center space-x-2">
+                                                        <Field
+                                                        type="checkbox"
+                                                        name="tags"
+                                                        value={tag.id}
+                                                        className="peer w-4 h-4 text-[#180c5c] border-gray-300 dark:border-gray-700 rounded focus:ring-[#180c5c]"
+                                                        checked={arrayHelpers.form.values.tags.includes(tag.id)}
+                                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                            if (e.target.checked) {
+                                                                arrayHelpers.push(tag.id);
+                                                            } else {
+                                                                const idx = arrayHelpers.form.values.tags.indexOf(tag.id);
+                                                            if (idx !== -1) 
+                                                                arrayHelpers.remove(idx);
+                                                            }
+                                                        }}
+                                                        />
+                                                        <span className="text-sm text-gray-700 dark:text-white">
+                                                        {tag.name}
+                                                        </span>
+                                                    </label>
+                                                    ))}
+                                                </div>
+                                                </div>
+                                            )}
+                                    />
+                                                    
+
                                         <div className="mt-6 text-right">
                                             <button
                                                 type="submit"
-                                                // disabled={}isSubmitting}
                                                 className="px-6 py-3 bg-[#180c5c] text-white font-semibold rounded-lg shadow-lg hover:bg-[#180c3c] focus:ring-2 focus:ring-blue-500"
                                                 >
                                                 {isEditMode ? 'Actualizar' : 'Agregar'}
@@ -304,5 +349,4 @@ export const AddEditForm = () => {
         </Formik>
     </div>
     )
-
 }

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import axios from 'axios';
 import { Field, ErrorMessage, FieldArray, Formik, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
@@ -264,7 +263,6 @@ export const AddEditForm = () => {
                                                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                                     if (e.target.files) {
                                                         setFile(e.target.files[0]);
-                                                        console.log(JSON.stringify(data));
                                                         if (data) data.file.original_url = URL.createObjectURL(e.target.files[0]);
                                                     }
                                                 }} />
