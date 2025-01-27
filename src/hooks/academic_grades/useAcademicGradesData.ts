@@ -80,7 +80,7 @@ const useAcademicGrades = ({getEndpoint, id} : { getEndpoint? : string, id? : nu
     }
     const getById = async (id : number | string) => {
 
-        const response = await Api.get('/academic-grades/get/' + id, {
+        const response = await Api.get('/academic-grades/get/' + id  + '?include=file', {
 
             Authorization: 'Bearer ' + token,
             accept: 'application/json'

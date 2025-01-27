@@ -1,5 +1,5 @@
 // Los valores por defecto de los select no son detectados, aunque aparezcan seleccionados por default se deben de seleccionar especificamente otra vez para que el formulario mande los datos
-import { useEffect } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { useParams } from "react-router-dom"
 import { MessageToast } from "../MessageToast";
 import { useAcademicGradesForm } from "@/hooks/academic_grades/useAcademicGradesForm";
@@ -8,7 +8,7 @@ import { Controller } from "react-hook-form";
 export const AcademicGradesForm = () => {
     const { id } = useParams<{ id?: string }>();
     
-    const { loadData, loading, handleSubmit,    onSubmit, register, users, institutions, control, errors  } = useAcademicGradesForm({id});
+    const { loadData, loading, handleSubmit,  onSubmit, register, users, institutions, control, errors, setValue, file, setFile } = useAcademicGradesForm({id});
     
     useEffect(() => {
         loadData();
@@ -37,31 +37,7 @@ export const AcademicGradesForm = () => {
                         type="date" {...register('titulation_date')} />
                         {errors.titulation_date && <p className="text-red-500 ">{errors.titulation_date.message}</p>}
                     </div>
-                </div>
-
-                 <div className="w-full md:w-1/2 px-4 mb-6">
-                    <label className="block text-base font-medium text-[#180c5c] mb-2 text-left">Usuario</label>
-                    <Controller
-                    name="user_id"
-                    control={control}
-                    render={({ field }) => (
-                    <select
-                    className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-gray-300"
-                    
-                        {...field}
-                    >
-                        {users && users.map((item) => (
-                        <option key={item.id} value={item.id}>
-                            {item.name}
-                        </option>
-                        ))}
-                    </select>
-                    )}
-                    />
-                    {errors.user_id && <p className="text-red-500">{errors.user_id.message}</p>}
-                  
-
-                    <div className="mt-6">
+                     <div className="mt-6">
                     <label className="block text-base font-medium text-[#180c5c] mb-2 text-left">Institucion</label>
                     <Controller
                         name="institution_id"
@@ -81,6 +57,51 @@ export const AcademicGradesForm = () => {
                     />
                         {errors.institution_id && <p className="text-red-500">{errors.institution_id.message}</p>}
                     </div>
+                </div>
+
+                 <div className="w-full md:w-1/2 px-4 mb-6">
+                    <label className="block text-base font-medium text-[#180c5c] mb-2 text-left">Usuario</label>
+                    <Controller
+                    name="user_id"
+                    control={control}
+                    render={({ field }) => (
+                    <select
+                    className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-gray-300"
+                        {...field}
+                    >
+                        {users && users.map((item) => (
+                        <option key={item.id} value={item.id}>
+                            {item.name}
+                        </option>
+                        ))}
+                    </select>
+                    )}
+                    />
+                    {errors.user_id && <p className="text-red-500">{errors.user_id.message}</p>}
+                  
+                   <label className="block text-base font-medium text-[#180c5c] mb-2 mt-6 text-left">
+                      Archivo
+                    </label>
+                    <input
+                      className="w-full bg-[#f9fafb] dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500"                 
+                      type="file"
+                       accept="application/pdf"
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        if (e.target.files) {
+                            setValue('file', e.target.files[0]);
+                            setFile(URL.createObjectURL(e.target.files[0]));
+                        }
+                    }}
+                    />
+                      
+                    <div className="mt-4 align-center">
+                        <object data={file} type="application/pdf" width="100%" height="100px">
+                            <p>Your browser does not support embedded PDFs. You can <a href={file}>download the PDF</a> instead.</p>
+                        </object>
+                        <a href={file} target="_blank" rel="noreferrer" className="text-blue-500 mt-2 inline-block"> Ver archivo </a>
+                    </div>
+
+                   
                     <div className="mt-6 text-right">
                         <button
                             type="submit"
@@ -91,9 +112,6 @@ export const AcademicGradesForm = () => {
                 </div> 
             </div>
         </div>
-    </section>
-        
-      
-        <input type="submit" value={'asd'}/>;
+    </section>      
     </form>
 }

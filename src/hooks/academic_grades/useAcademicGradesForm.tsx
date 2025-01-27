@@ -17,6 +17,7 @@ interface FormValues  {
     titulation_date: string; 
     user_id : string;
     institution_id : string;
+    file?: File;
 }
 
 const validationSchema = Yup.object({
@@ -24,6 +25,7 @@ const validationSchema = Yup.object({
     user_id : Yup.string().required('El usuario es requerido'),
     titulation_date: Yup.string().required('La fecha de titulacion es requerida'),
     institution_id: Yup.string().required('La instutucion es requerida'),
+    file: Yup.mixed()
 })
 
 export const useAcademicGradesForm = ({id}: {id ?  : number | string | null | undefined }) => {
@@ -32,9 +34,11 @@ export const useAcademicGradesForm = ({id}: {id ?  : number | string | null | un
     const { fetchData: fetchUsers } = useUser();
     const { fetchData: fetchInstitutions } = useInstitutions();
     const { post } = useAcademicGrades({id});
-    const navigate = useNavigate();
+    const navigate = useNavigate(); 
+    const [ file, setFile ] = useState<string | undefined>();
 
-    const { reset, setError, watch, control, register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+
+    const { reset, setError, watch, control, register, handleSubmit, formState: { errors }, setValue } = useForm<FormValues>({
         mode: 'onChange',
         resolver: yupResolver(validationSchema),
     });
@@ -42,7 +46,10 @@ export const useAcademicGradesForm = ({id}: {id ?  : number | string | null | un
     const onSubmit = async(data: FormValues) => {
 
         const formData = createFormData(data);
-        console.log(formData);
+        
+        if (data.file && data.file instanceof File) {
+            formData.append('files[]', data.file);
+        }
         
         const isEditMode = !!data.id
         try {
@@ -78,6 +85,9 @@ export const useAcademicGradesForm = ({id}: {id ?  : number | string | null | un
             if(id) {
                 const fetchedData = await getById(id);                
                 reset(fetchedData);
+                if(fetchedData?.file?.original_url){
+                    setFile(fetchedData.file.original_url);
+                }
             }
             const users : UserItem_T[]  = await fetchUsers() || [];
             setUsers(users);
@@ -89,5 +99,5 @@ export const useAcademicGradesForm = ({id}: {id ?  : number | string | null | un
             setLoading(false);
         }
     }
-    return { loadData, handleSubmit, onSubmit, loading, watch, register, users, institutions, control, errors }
+    return { loadData, handleSubmit, onSubmit, loading, watch, register, users, institutions, control, errors, setValue, file, setFile };
 }
