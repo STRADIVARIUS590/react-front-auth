@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { UNSAFE_SingleFetchRedirectSymbol, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Api } from "../../services/Api";
 import * as Yup from 'yup';
@@ -10,7 +10,6 @@ import { DefaultColumn, DefaultInput } from "../inputs/Forms";
 import { TagItem } from "../Users/AddEditForm";
 import { post } from "../Courses/addEditForm";
 import { createFormData } from "@/hooks/publications/usePublicationForm";
-import { log } from "console";
 const validationSchema = Yup.object({
     name: Yup.string().required('El nombre es requerido'),
     description: Yup.string().required('La descripcion es requerida'),
@@ -134,10 +133,6 @@ export const AddEditForm = () => {
         },
         file: data?.file || null, 
     }
-
-
-    const [ filePreview, setFilePreview ] = useState(initialValues.file?.original_url || '');
-
 
     const isEditMode = !!id;
 

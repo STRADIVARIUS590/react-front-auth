@@ -5,7 +5,7 @@ import './App.css'
 import { Middleware } from './components/scripts/Middleware'
 import {
   createBrowserRouter,
-  HashRouter,
+  // HashRouter,
   RouterProvider,
   // Route,
   // Link
