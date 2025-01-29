@@ -19,11 +19,10 @@ const validationSchema = Yup.object({
     issn_isbn : Yup.string().required('El identificador  ISSN / ISBN es requerido'),
     doi: Yup.string().required('El doi es requerido'),
     magazine_name : Yup.string().required('EL nombre de la revista es rquerido'),
-    authors : Yup.string().required('EL numero de autores es requerido'),
     publication_date : Yup.string().required('La fecha de publicacion es requerida'),
     period: Yup.string().required('El periodo es requerido'),
     tags: Yup.array().optional(),
-    cover: Yup.mixed()
+    cover: Yup.mixed(),
 });
 export const createFormData = (data: Record<string, any>): FormData => {
     const formData = new FormData();
@@ -42,7 +41,6 @@ interface FormValues {
     issn_isbn: string;
     doi: string;
     magazine_name: string;
-    authors: string;
     publication_date: string;
     period: string ;
     tags?: any[];
@@ -64,7 +62,7 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
     const { fetchData : fetchTags } = useTags();
     const [ cover, setCover ] = useState<string | undefined>();
     const [ file, setFile] = useState<string | undefined>();
-
+    const [ authors, setAuthors ] = useState<string[]>([]);
     const navigate  = useNavigate();
 
     const { reset, setError, watch, control, setValue, register, handleSubmit, formState: { errors } } = useForm<FormValues>({
@@ -77,8 +75,11 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
         const loadData = async ({id}: {id ?  : number | string | undefined | null } ) => {
             try {
                 if(id){
+
                     let fetchedData = await getById(id);
+
                     reset(fetchedData);
+
                     if(fetchedData?.tags) {
                         setValue('tags', fetchedData.tags.map((tag: TagItem) => tag.id));
                     }
@@ -87,6 +88,10 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
                     }
                     if(fetchedData?.file?.original_url){
                         setFile(fetchedData.file.original_url);
+                    }
+                
+                    if(fetchedData?.authors) {
+                        setAuthors((JSON.parse(fetchedData.authors)).map((author : {name : string}) => author.name))
                     }
                 }
 
@@ -111,11 +116,16 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
             data.tags.forEach((tag) => {
                 formData.append('tags[]', tag);
             });
-        }        
-
+        }
+        if(authors){
+            var authorsWithKey = authors.filter(str => str.trim() !== "").map(author => ({ name: author }));    
+            formData.append('authors', (JSON.stringify(authorsWithKey)));
+        }
+    
         if (data.file && data.file instanceof File) {
             formData.append('files[]', data.file);
         }
+    
         if (data.cover && data.cover instanceof File) { 
             formData.append('cover', data.cover);
         }
@@ -142,5 +152,5 @@ export const usePublicationsForm = ({id}: {id ?  : number | string | null | unde
         }
     }
 
-    return {  loadData, loading, register, onSubmit, handleSubmit, errors, tags, control, watch, cover, setCover, setValue, users, file, setFile,  };
+    return { loadData, loading, register, onSubmit, handleSubmit, errors, tags, control, watch, cover, setCover, setValue, users, file, setFile, authors, setAuthors };
 };

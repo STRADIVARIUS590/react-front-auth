@@ -88,7 +88,7 @@ const usePublicationsTableColumns = ({ deleteFn, canDelete, canEdit, user }: { d
             },
         },
         {
-            accessorKey: "authors",
+            accessorKey: "authors_count",
             header: ({ column }: { column: Column<PublicationItem, unknown> }) => {
                 return (
                     <TableSortButton column={column} headingText={"Autores"} />
