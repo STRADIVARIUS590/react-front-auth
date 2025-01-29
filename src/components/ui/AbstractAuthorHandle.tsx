@@ -4,6 +4,12 @@ export const AbstractAuthorHandle = ({ values, setValues }: { values: string[], 
     setValues((prevValues) => {
       const newValues = [...prevValues];
       newValues[index] = event.target.value; 
+
+      // If the value is empty, remove the input at the given index
+      if (newValues[index] === '') {
+        newValues.splice(index, 1); // Remove the empty input
+      }
+
       return newValues;
     });
   };
