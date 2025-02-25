@@ -1,14 +1,9 @@
 import { createElement } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
 import './App.css'
 import { Middleware } from './components/scripts/Middleware'
 import {
   createBrowserRouter,
-  // HashRouter,
   RouterProvider,
-  // Route,
-  // Link
 } from "react-router-dom"
 import routes from './routers/routes'
 import { Provider } from 'react-redux'
